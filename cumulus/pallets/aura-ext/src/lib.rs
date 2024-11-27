@@ -40,6 +40,8 @@ use sp_consensus_aura::{digests::CompatibleDigestItem, Slot};
 use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
 
 pub mod consensus_hook;
+pub mod migration;
+
 pub use consensus_hook::FixedVelocityConsensusHook;
 
 type Aura<T> = pallet_aura::Pallet<T>;
@@ -57,6 +59,7 @@ pub mod pallet {
 	pub trait Config: pallet_aura::Config + frame_system::Config {}
 
 	#[pallet::pallet]
+	#[pallet::storage_version(migration::STORAGE_VERSION)]
 	pub struct Pallet<T>(_);
 
 	#[pallet::hooks]
@@ -70,20 +73,7 @@ pub mod pallet {
 			// Fetch the authorities once to get them into the storage proof of the PoV.
 			Authorities::<T>::get();
 
-			let new_slot = pallet_aura::CurrentSlot::<T>::get();
-
-			let (new_slot, authored) = match SlotInfo::<T>::get() {
-				Some((slot, authored)) if slot == new_slot => (slot, authored + 1),
-				Some((slot, _)) if slot < new_slot => (new_slot, 1),
-				Some(..) => {
-					panic!("slot moved backwards")
-				},
-				None => (new_slot, 1),
-			};
-
-			SlotInfo::<T>::put((new_slot, authored));
-
-			T::DbWeight::get().reads_writes(4, 2)
+			T::DbWeight::get().reads_writes(1, 0)
 		}
 	}
 
@@ -99,11 +89,9 @@ pub mod pallet {
 		ValueQuery,
 	>;
 
-	/// Current slot paired with a number of authored blocks.
-	///
-	/// Updated on each block initialization.
+	/// Current relay chain slot paired with a number of authored blocks.
 	#[pallet::storage]
-	pub(crate) type SlotInfo<T: Config> = StorageValue<_, (Slot, u32), OptionQuery>;
+	pub(crate) type RelaySlotInfo<T: Config> = StorageValue<_, (Slot, u32), OptionQuery>;
 
 	#[pallet::genesis_config]
 	#[derive(frame_support::DefaultNoBound)]

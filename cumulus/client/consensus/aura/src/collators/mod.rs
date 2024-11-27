@@ -22,6 +22,7 @@
 
 use crate::collator::SlotClaim;
 use codec::Codec;
+use tracing::log;
 use cumulus_client_consensus_common::{
 	self as consensus_common, load_abridged_host_configuration, ParentSearchParams,
 };
@@ -34,7 +35,7 @@ use polkadot_primitives::{
 	ValidationCodeHash,
 };
 use sc_consensus_aura::{standalone as aura_internal, AuraApi};
-use sp_api::ProvideRuntimeApi;
+use sp_api::{ApiExt, ProvideRuntimeApi};
 use sp_core::Pair;
 use sp_keystore::KeystorePtr;
 use sp_timestamp::Timestamp;
@@ -160,7 +161,8 @@ async fn cores_scheduled_for_para(
 // Checks if we own the slot at the given block and whether there
 // is space in the unincluded segment.
 async fn can_build_upon<Block: BlockT, Client, P>(
-	slot: Slot,
+	para_slot: Slot,
+	relay_slot: Slot,
 	timestamp: Timestamp,
 	parent_hash: Block::Hash,
 	included_block: Block::Hash,
@@ -169,25 +171,32 @@ async fn can_build_upon<Block: BlockT, Client, P>(
 ) -> Option<SlotClaim<P::Public>>
 where
 	Client: ProvideRuntimeApi<Block>,
-	Client::Api: AuraApi<Block, P::Public> + AuraUnincludedSegmentApi<Block>,
+	Client::Api: AuraApi<Block, P::Public> + AuraUnincludedSegmentApi<Block> + ApiExt<Block>,
 	P: Pair,
 	P::Public: Codec,
 	P::Signature: Codec,
 {
 	let runtime_api = client.runtime_api();
 	let authorities = runtime_api.authorities(parent_hash).ok()?;
-	let author_pub = aura_internal::claim_slot::<P>(slot, &authorities, keystore).await?;
+	let author_pub = aura_internal::claim_slot::<P>(para_slot, &authorities, keystore).await?;
 
-	// Here we lean on the property that building on an empty unincluded segment must always
-	// be legal. Skipping the runtime API query here allows us to seamlessly run this
-	// collator against chains which have not yet upgraded their runtime.
-	if parent_hash != included_block &&
-		!runtime_api.can_build_upon(parent_hash, included_block, slot).ok()?
-	{
-		return None
+	if let Ok(Some(api_version)) = runtime_api.api_version::<dyn AuraUnincludedSegmentApi<Block>>(parent_hash) {
+		let can_build = if api_version > 1 {
+			log::info!(target: "skunert", "Calling version 2 of can_build_upon");
+			runtime_api.can_build_upon(parent_hash, included_block, relay_slot).ok()?
+		} else {
+			// Here we lean on the property that building on an empty unincluded segment must always
+			// be legal. Skipping the runtime API query here allows us to seamlessly run this
+			// collator against chains which have not yet upgraded their runtime.
+			log::info!(target: "skunert", "Calling version 1 of can_build_upon");
+			parent_hash == included_block ||
+				runtime_api.can_build_upon(parent_hash, included_block, para_slot).ok()?
+		};
+		if can_build {
+			return Some(SlotClaim::unchecked::<P>(author_pub, para_slot, timestamp))
+		}
 	}
-
-	Some(SlotClaim::unchecked::<P>(author_pub, slot, timestamp))
+	None
 }
 
 /// Use [`cumulus_client_consensus_common::find_potential_parents`] to find parachain blocks that

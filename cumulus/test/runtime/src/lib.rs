@@ -392,7 +392,10 @@ pub type Executive = frame_executive::Executive<
 	frame_system::ChainContext<Runtime>,
 	Runtime,
 	AllPalletsWithSystem,
-	TestOnRuntimeUpgrade,
+	(
+		TestOnRuntimeUpgrade,
+		cumulus_pallet_aura_ext::migration::MigrateV0ToV1<Runtime>
+	),
 >;
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, TxExtension>;
