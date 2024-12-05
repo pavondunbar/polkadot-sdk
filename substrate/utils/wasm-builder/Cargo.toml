@@ -1,6 +1,6 @@
 [package]
 name = "substrate-wasm-builder"
-version = "17.0.0"
+version = "23.0.0"
 authors.workspace = true
 description = "Utility for building WASM binaries"
 edition.workspace = true
@@ -36,6 +36,7 @@ sp-core = { optional = true, workspace = true, default-features = true }
 sp-io = { optional = true, workspace = true, default-features = true }
 sp-version = { optional = true, workspace = true, default-features = true }
 # frame-metadata = { features = ["current"], optional = true, workspace = true, default-features = true }
+frame-metadata = { git = "https://github.com/paritytech/frame-metadata.git", tag = "v18.0.0" }
 codec = { optional = true, workspace = true, default-features = true }
 array-bytes = { optional = true, workspace = true, default-features = true }
 sp-tracing = { optional = true, workspace = true, default-features = true }
