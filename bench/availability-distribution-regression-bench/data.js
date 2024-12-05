@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1733416622414,
+  "lastUpdate": 1733420963311,
   "repoUrl": "https://github.com/paritytech/polkadot-sdk",
   "entries": {
     "availability-distribution-regression-bench": [
@@ -41065,6 +41065,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "availability-store",
             "value": 0.17682859640000004,
+            "unit": "seconds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "franciscoaguirreperez@gmail.com",
+            "name": "Francisco Aguirre",
+            "username": "franciscoaguirre"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f31c70aad4f90168824871c3c094008f3120b333",
+          "message": "Added fallback_max_weight to Transact for sending messages to V4 chains (#6643)\n\nCloses: https://github.com/paritytech/polkadot-sdk/issues/6585\n\nRemoving the `require_weight_at_most` parameter in V5 Transact had only\none problem. Converting a message from V5 to V4 to send to chains that\ndidn't upgrade yet. The conversion would not know what weight to give to\nthe Transact, since V4 and below require it.\n\nTo fix this, I added back the weight in the form of an `Option<Weight>`\ncalled `fallback_max_weight`. This can be set to `None` if you don't\nintend to deal with a chain that hasn't upgraded yet. If you set it to\n`Some(_)`, the behaviour is the same. The plan is to totally remove this\nin V6 since there will be a good conversion path from V6 to V5.\n\n---------\n\nCo-authored-by: GitHub Action <action@github.com>\nCo-authored-by: Adrian Catangiu <adrian@parity.io>",
+          "timestamp": "2024-12-05T16:27:39Z",
+          "tree_id": "6e25c606be90866f79bed37c78e26150ca4d89e7",
+          "url": "https://github.com/paritytech/polkadot-sdk/commit/f31c70aad4f90168824871c3c094008f3120b333"
+        },
+        "date": 1733420944129,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "Received from peers",
+            "value": 433.3333333333332,
+            "unit": "KiB"
+          },
+          {
+            "name": "Sent to peers",
+            "value": 18481.666666666653,
+            "unit": "KiB"
+          },
+          {
+            "name": "availability-store",
+            "value": 0.17689754582000006,
+            "unit": "seconds"
+          },
+          {
+            "name": "availability-distribution",
+            "value": 0.016212662966666666,
+            "unit": "seconds"
+          },
+          {
+            "name": "test-environment",
+            "value": 0.00845513015333342,
+            "unit": "seconds"
+          },
+          {
+            "name": "bitfield-distribution",
+            "value": 0.024568138826666662,
             "unit": "seconds"
           }
         ]
