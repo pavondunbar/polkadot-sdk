@@ -27,6 +27,7 @@ filetime = { workspace = true }
 wasm-opt = { workspace = true }
 parity-wasm = { workspace = true }
 polkavm-linker = { workspace = true }
+frame-metadata = { git = "https://github.com/paritytech/frame-metadata.git", tag = "v18.0.0" }
 
 # Dependencies required for the `metadata-hash` feature.
 merkleized-metadata = { optional = true, workspace = true }
@@ -34,7 +35,7 @@ sc-executor = { optional = true, workspace = true, default-features = true }
 sp-core = { optional = true, workspace = true, default-features = true }
 sp-io = { optional = true, workspace = true, default-features = true }
 sp-version = { optional = true, workspace = true, default-features = true }
-frame-metadata = { features = ["current"], optional = true, workspace = true, default-features = true }
+# frame-metadata = { features = ["current"], optional = true, workspace = true, default-features = true }
 codec = { optional = true, workspace = true, default-features = true }
 array-bytes = { optional = true, workspace = true, default-features = true }
 sp-tracing = { optional = true, workspace = true, default-features = true }
