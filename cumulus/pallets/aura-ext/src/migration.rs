@@ -15,8 +15,7 @@
 // along with Cumulus.  If not, see <http://www.gnu.org/licenses/>.
 
 use frame_support::migrations::VersionedMigration;
-use frame_support::pallet_prelude::{StorageVersion, Weight};
-use frame_support::traits::UncheckedOnRuntimeUpgrade;
+use frame_support::pallet_prelude::StorageVersion;
 use crate::{Config, Pallet};
 
 /// The in-code storage version.
@@ -36,13 +35,9 @@ mod v0 {
 	pub(super) type SlotInfo<T: Config> = StorageValue<Pallet<T>, (Slot, u32), OptionQuery>;
 }
 mod v1 {
-	use frame_support::{pallet_prelude::*, traits::OnRuntimeUpgrade};
 	use super::*;
-	use alloc::vec::Vec;
-	use frame_support::__private::log;
 	use frame_support::traits::UncheckedOnRuntimeUpgrade;
-	use sp_application_crypto::sp_core::bounded::alloc;
-	use crate::migration::v0::SlotInfo;
+	use frame_support::pallet_prelude::*;
 
 	pub struct UncheckedMigrationToV1<T: Config>(PhantomData<T>);
 

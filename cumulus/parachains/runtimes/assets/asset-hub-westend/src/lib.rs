@@ -336,7 +336,6 @@ pub type LocalAndForeignAssets = fungibles::UnionOf<
 	xcm::v5::Location,
 	AccountId,
 >;
-
 /// Union fungibles implementation for [`LocalAndForeignAssets`] and `Balances`.
 pub type NativeAndAssets = fungible::UnionOf<
 	Balances,

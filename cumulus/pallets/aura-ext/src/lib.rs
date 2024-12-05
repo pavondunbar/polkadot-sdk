@@ -90,6 +90,9 @@ pub mod pallet {
 	>;
 
 	/// Current relay chain slot paired with a number of authored blocks.
+	///
+	/// This is updated in [`FixedVelocityConsensusHook::on_state_proof`] with the current relay
+	/// chain slot as provided by the relay chain state proof.
 	#[pallet::storage]
 	pub(crate) type RelaySlotInfo<T: Config> = StorageValue<_, (Slot, u32), OptionQuery>;
 
